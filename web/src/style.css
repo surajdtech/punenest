@@ -1,4 +1,4 @@
-/* GharKhoj. Tokens first; light theme only swaps tokens. */
+/* PuneNest. Tokens first; light theme only swaps tokens. */
 :root {
   --bg: #050506; --glass: rgba(10, 10, 12, .62); --glass-strong: rgba(12, 12, 14, .9); --line: rgba(255, 255, 255, .09);
   --text: #f2f0ec; --muted: #8d8b87; --accent: #ffd9a0; --accent-ink: #0b0b0c; --likely: #d9a866; --probable: #a8916b; --fail: #ff9b8a;

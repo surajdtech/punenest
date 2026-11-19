@@ -1,9 +1,9 @@
 {
-  "name": "gharkhoj",
+  "name": "punenest",
   "version": "0.1.0",
-  "description": "Find Pune housing societies by the smallest bedroom you can live with. CLI for gharkhoj.pages.dev",
+  "description": "Find Pune housing societies by the smallest bedroom you can live with. CLI for punenest.pages.dev",
   "type": "module",
-  "bin": { "gharkhoj": "cli/gharkhoj.mjs" },
+  "bin": { "punenest": "cli/punenest.mjs" },
   "files": ["cli", "web/src/filters.js"],
   "license": "MIT",
   "repository": "github:surajdtech/punenest"

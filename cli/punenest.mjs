@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// flatfinder: search the GharKhoj data from a terminal. Same filter logic as the website.
+// flatfinder: search the PuneNest data from a terminal. Same filter logic as the website.
 import { readFile, realpath } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { DEFAULT_CRITERIA, feetLabel, formatINR, matchSociety, priceFor } from '../web/src/filters.js';
 
-const SITE = 'https://gharkhoj.pages.dev';
+const SITE = 'https://punenest.pages.dev';
 
 const HELP = `flatfinder: find housing societies that fit
 

@@ -1,4 +1,4 @@
-# GharKhoj · Pune
+# PuneNest · Pune
 
 Every housing society in Pune and Pimpri-Chinchwad on one 3D night map. Set the smallest bedroom you can live with, home size, BHK, amenities, buy or rent budget and what you want nearby (metro, park, school, hospital, mall), and watch the societies that fit light up. Every number links to where it came from.
 
@@ -25,7 +25,7 @@ Pune has no hand-verified rows yet, so the room filter relies on "probably fits"
 
 ## MCP endpoint (use it inside Claude)
 
-GharKhoj is an MCP server at `https://gharkhoj.pages.dev/mcp` once deployed (`http://localhost:8788/mcp` locally). In Claude, add a custom connector with that URL and ask things like *"3 BHK in Baner or Balewadi under ₹1.6 Cr, every bedroom at least 10 by 12, metro within 1 km"*.
+PuneNest is an MCP server at `https://punenest.pages.dev/mcp` once deployed (`http://localhost:8788/mcp` locally). In Claude, add a custom connector with that URL and ask things like *"3 BHK in Baner or Balewadi under ₹1.6 Cr, every bedroom at least 10 by 12, metro within 1 km"*.
 
 Tools: `search_societies`, `breakdown` (group by locality, BHK, amenity, metro distance, rent or price band), `list_localities`, `get_society`, `compare_societies`. Default city is `pune`.
 
@@ -43,7 +43,7 @@ python build_city.py pune                          # -> web/public/data/
 cd ../web
 npm install
 npx vite build && npx wrangler pages dev dist      # http://localhost:8788 and /mcp
-npx wrangler pages deploy dist --project-name gharkhoj
+npx wrangler pages deploy dist --project-name punenest
 ```
 
 On Windows set `PYTHONUTF8=1` before running the pipeline.
@@ -53,7 +53,7 @@ Useful links: `?city=pune`, `?map=streets` or `?map=light`, `?preset=example`, `
 ## Terminal
 
 ```bash
-node cli/gharkhoj.mjs --bhk 2,3 --max-rent 45k --amenity pool
+node cli/punenest.mjs --bhk 2,3 --max-rent 45k --amenity pool
 ```
 
 ## Before you publish

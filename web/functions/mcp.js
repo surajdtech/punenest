@@ -1,10 +1,10 @@
-// GharKhoj MCP server (Streamable HTTP, JSON responses), so people can add GharKhoj to Claude as a connector.
+// PuneNest MCP server (Streamable HTTP, JSON responses), so people can add PuneNest to Claude as a connector.
 // Runs as a Cloudflare Pages Function at /mcp and reads the same static data the website uses.
 import { DEFAULT_CRITERIA, NEAR, feetLabel, formatINR, hasAmenity, matchSociety, priceFor, unitSize } from '../src/filters.js';
 import { searchSocieties } from '../src/search.js';
 
 const PROTOCOL = '2025-06-18';
-const SITE = 'https://gharkhoj.pages.dev';
+const SITE = 'https://punenest.pages.dev';
 const cache = new Map();
 
 async function city(env, origin, id) {
@@ -45,7 +45,7 @@ const TOOLS = [
     name: 'search_societies',
     description: 'List housing societies in an Indian city that fit any mix of filters: sector/locality, distance from a point, BHK, smallest bedroom, home size, buy or rent range, amenities, distance to park/metro/school/hospital/mall, rating. With no filters but a locality it lists every society there. Each result has per-BHK buy and rent (median of live listings, or a marked estimate), sizes, smallest bedroom, distances to nearby places and key amenities. Paginate with offset; total says how many matched. Verdict: match = bedrooms read from plans and all pass (or no room filter used); likely = rooms read so far pass; probable = estimated from unit size.',
     inputSchema: { type: 'object', properties: { ...FILTERS,
-      sort_by: { type: 'string', enum: ['best', 'price', 'rent', 'rating', 'score', 'size', 'metro', 'distance', 'name'], default: 'best', description: 'best = verdict, then verified, then GharKhoj score. price/rent/size/metro/distance ascending, rating/score descending.' },
+      sort_by: { type: 'string', enum: ['best', 'price', 'rent', 'rating', 'score', 'size', 'metro', 'distance', 'name'], default: 'best', description: 'best = verdict, then verified, then PuneNest score. price/rent/size/metro/distance ascending, rating/score descending.' },
       offset: { type: 'integer', default: 0 },
       limit: { type: 'integer', default: 25, maximum: 200 },
       include_all_amenities: { type: 'boolean', default: false, description: 'Return the full amenity list for each society' } } },
@@ -137,7 +137,7 @@ function perBhk(s, bhk) {
       const est = p[`${m}_est`]?.value ? { estimate: p[`${m}_est`].value } : null;
       if (p[m]?.median == null) return est;
       const real = { median: p[m].median, range: [p[m].min, p[m].max], listings: p[m].n, ...(p[m].n === 1 && { thin: 'only 1 listing' }), ...(p.flags?.[`${m}_range`] && { range_warning: p.flags[`${m}_range`] }) };
-      return p.flags?.[m] ? { listed: real, flag: `GharKhoj check: ${p.flags[m]}. Not used for filtering.`, ...est } : real;
+      return p.flags?.[m] ? { listed: real, flag: `PuneNest check: ${p.flags[m]}. Not used for filtering.`, ...est } : real;
     };
     const small = e.rooms.length ? e.rooms.reduce((m, r) => (r[0] < m[0] ? r : m)) : null;
     return [b, { buy: price('buy'), rent: price('rent'), price_per_sqft: p.psf ?? null,
@@ -156,7 +156,7 @@ function summary(s, st, crit, d, allAmenities) {
     rooms_checked: s.verified ? 'by hand' : s.ai_read ? 'AI-read floor plans' : 'no',
     ...(d != null && { distance_km: +d.toFixed(2) }),
     by_bhk: perBhk(s, crit.bhk),
-    gharkhoj_score: s.score, resident_rating: s.rating, listings_for_sale: s.sale_count, listings_for_rent: s.rent_count,
+    punenest_score: s.score, resident_rating: s.rating, listings_for_sale: s.sale_count, listings_for_rent: s.rent_count,
     nearby: nearbyOut(s),
     amenities: allAmenities ? s.amenities : KEY_AMENITIES.filter((k) => hasAmenity(s, k)),
     towers: s.towers, units: s.units, acres: s.acres,
@@ -217,7 +217,7 @@ function detail(s, extra) {
     ratings_by_category: extra?.ratings || null,
     reviews: (extra?.reviews || []).slice(0, 8).map((r) => ({ title: r.title, text: r.text, date: r.date, by: r.by })),
     description: extra?.description || null,
-    nearby: s.nearby, amenities: s.amenities, brochure: s.brochure_url, magicbricks: s.url, google_maps: s.gmaps, gharkhoj: `${SITE}/?open=${s.id}`,
+    nearby: s.nearby, amenities: s.amenities, brochure: s.brochure_url, magicbricks: s.url, google_maps: s.gmaps, punenest: `${SITE}/?open=${s.id}`,
   };
 }
 
@@ -288,7 +288,7 @@ const json = (body, status = 200) => new Response(JSON.stringify(body), { status
 
 export async function onRequest({ request, env }) {
   if (request.method === 'OPTIONS') return new Response(null, { headers: { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, GET, OPTIONS' } });
-  if (request.method === 'GET') return json({ name: 'GharKhoj', mcp: 'POST JSON-RPC here', tools: TOOLS.map((t) => t.name) });
+  if (request.method === 'GET') return json({ name: 'PuneNest', mcp: 'POST JSON-RPC here', tools: TOOLS.map((t) => t.name) });
   const origin = new URL(request.url).origin;
   const msg = await request.json().catch(() => null);
   if (!msg) return json({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } }, 400);
@@ -297,8 +297,8 @@ export async function onRequest({ request, env }) {
     switch (msg.method) {
       case 'initialize':
         return reply({ protocolVersion: msg.params?.protocolVersion || PROTOCOL, capabilities: { tools: {} },
-          serverInfo: { name: 'gharkhoj', version: '1.0.0' },
-          instructions: 'Search Pune housing societies by locality, real bedroom sizes, buy or rent budget, amenities and what is nearby. search_societies lists every match (paginate with offset, up to 200 per call); breakdown groups them by locality, BHK, amenity, metro distance or rent/price band; list_localities gives exact locality names. Always say which results are verified, likely or estimated, and share the GharKhoj link for each society.' });
+          serverInfo: { name: 'punenest', version: '1.0.0' },
+          instructions: 'Search Pune housing societies by locality, real bedroom sizes, buy or rent budget, amenities and what is nearby. search_societies lists every match (paginate with offset, up to 200 per call); breakdown groups them by locality, BHK, amenity, metro distance or rent/price band; list_localities gives exact locality names. Always say which results are verified, likely or estimated, and share the PuneNest link for each society.' });
       case 'notifications/initialized':
         return new Response(null, { status: 202 });
       case 'ping':
