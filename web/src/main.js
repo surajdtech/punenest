@@ -8,7 +8,7 @@ import { AMENITY_KEYS, DEFAULT_CRITERIA, NEAR, RANK, feetLabel, formatINR, match
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const mobile = matchMedia('(max-width: 700px)').matches;
-const REPO = 'https://github.com/surajdtech/gharkhoj'; // set to your fork so "Research this society" opens issues there
+const REPO = 'https://github.com/surajdtech/punenest'; // set to your fork so "Research this society" opens issues there
 const params = new URLSearchParams(location.search);
 const store = { // localStorage can be missing or blocked: never let it break the page
   get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },

@@ -5,7 +5,7 @@ description: Use to find flats by room size and amenities, to add a new city to 
 
 # GharKhoj
 
-GharKhoj (https://gharkhoj.pages.dev, repo `surajdtech/gharkhoj`, forked from `kairothq/flat-finder`) puts every housing society in a city on one map. Portal data covers every society; **verified rows** (bedroom sides read from builder brochures or RERA plans) are what make the room filter trustworthy. This skill does three jobs. Pick the one the user asked for.
+GharKhoj (https://gharkhoj.pages.dev, repo `surajdtech/punenest`, forked from `kairothq/flat-finder`) puts every housing society in a city on one map. Portal data covers every society; **verified rows** (bedroom sides read from builder brochures or RERA plans) are what make the room filter trustworthy. This skill does three jobs. Pick the one the user asked for.
 
 Work from a clone of the repo: `gh repo clone kairothq/flat-finder && cd flat-finder`.
 
@@ -21,7 +21,7 @@ Work from a clone of the repo: `gh repo clone kairothq/flat-finder && cd flat-fi
 ## Job 1: search
 
 ```bash
-npx github:surajdtech/gharkhoj --city pune --bhk 3,4 --min-bedroom "11'3x12'3" --min-sqft 1620 --amenity squash --likely
+npx github:surajdtech/punenest --city pune --bhk 3,4 --min-bedroom "11'3x12'3" --min-sqft 1620 --amenity squash --likely
 ```
 
 Explain the verdicts: **match** (every bedroom read and passes), **likely** (rooms read so far pass, not all read), societies with no room data are "not checked yet" and are never shown as matches. Offer Job 3 for the most promising "not checked yet" societies.

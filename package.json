@@ -6,5 +6,5 @@
   "bin": { "gharkhoj": "cli/gharkhoj.mjs" },
   "files": ["cli", "web/src/filters.js"],
   "license": "MIT",
-  "repository": "github:surajdtech/gharkhoj"
+  "repository": "github:surajdtech/punenest"
 }

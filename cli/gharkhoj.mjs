@@ -8,7 +8,7 @@ const SITE = 'https://gharkhoj.pages.dev';
 
 const HELP = `flatfinder: find housing societies that fit
 
-  npx github:surajdtech/gharkhoj [options]
+  npx github:surajdtech/punenest [options]
 
   --city <id>            pune (default), gurgaon
   --bhk 3,4              BHK types
