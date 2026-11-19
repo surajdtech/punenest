@@ -2,16 +2,20 @@
 // Runs as a Cloudflare Pages Function at /mcp and reads the same static data the website uses.
 import { DEFAULT_CRITERIA, NEAR, feetLabel, formatINR, hasAmenity, matchSociety, priceFor, unitSize } from '../src/filters.js';
 import { searchSocieties } from '../src/search.js';
+import { loadCity, loadDetails } from '../src/citydata.js';
 
 const PROTOCOL = '2025-06-18';
-const SITE = 'https://punenest.pages.dev';
+const SITE = 'https://punenest-9q0.pages.dev';
 const cache = new Map();
 
 async function city(env, origin, id) {
   if (!cache.has(id)) {
-    const res = await env.ASSETS.fetch(new Request(`${origin}/data/${id}.json`));
-    if (!res.ok) throw new Error(`Unknown city "${id}"`);
-    cache.set(id, await res.json());
+    const getJson = async (name) => {
+      const res = await env.ASSETS.fetch(new Request(`${origin}/data/${name}`));
+      if (!res.ok) throw new Error(`Unknown city "${id}"`);
+      return res.json();
+    };
+    cache.set(id, await loadCity(getJson, id, { events: false }));
   }
   return cache.get(id);
 }
@@ -194,13 +198,9 @@ function groupKeys(s, by, crit) {
   return ['all'];
 }
 
-let detailsCache = null;
-async function details(env, origin, id, sid) {
-  if (!detailsCache || detailsCache.id !== id) {
-    const res = await env.ASSETS.fetch(new Request(`${origin}/data/${id}-details.json`));
-    detailsCache = { id, data: res.ok ? await res.json() : {} };
-  }
-  return detailsCache.data[sid] || null;
+async function details(env, origin, id, s) {
+  const getJson = async (name) => { const res = await env.ASSETS.fetch(new Request(`${origin}/data/${name}`)); return res.ok ? res.json() : {}; };
+  return loadDetails(getJson, await city(env, origin, id), id, s);
 }
 
 function detail(s, extra) {
@@ -275,7 +275,7 @@ async function callTool(name, args, env, origin) {
   const find = (n) => searchSocieties(data.societies, n, 1)[0];
   if (name === 'get_society') {
     const s = find(args.name);
-    return s ? detail(s, await details(env, origin, id, s.id)) : { error: `No society found for "${args.name}"` };
+    return s ? detail(s, await details(env, origin, id, s)) : { error: `No society found for "${args.name}"` };
   }
   if (name === 'compare_societies') {
     const crit = { ...structuredClone(DEFAULT_CRITERIA), mode: args.mode || 'buy' };

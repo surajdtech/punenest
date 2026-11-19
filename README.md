@@ -25,7 +25,7 @@ Pune has no hand-verified rows yet, so the room filter relies on "probably fits"
 
 ## MCP endpoint (use it inside Claude)
 
-PuneNest is an MCP server at `https://punenest.pages.dev/mcp` once deployed (`http://localhost:8788/mcp` locally). In Claude, add a custom connector with that URL and ask things like *"3 BHK in Baner or Balewadi under ₹1.6 Cr, every bedroom at least 10 by 12, metro within 1 km"*.
+PuneNest is an MCP server at `https://punenest-9q0.pages.dev/mcp` once deployed (`http://localhost:8788/mcp` locally). In Claude, add a custom connector with that URL and ask things like *"3 BHK in Baner or Balewadi under ₹1.6 Cr, every bedroom at least 10 by 12, metro within 1 km"*.
 
 Tools: `search_societies`, `breakdown` (group by locality, BHK, amenity, metro distance, rent or price band), `list_localities`, `get_society`, `compare_societies`. Default city is `pune`.
 

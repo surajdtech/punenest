@@ -1,6 +1,6 @@
 """Merge Magicbricks projects, OSM shapes and verified research into the web data files.
 
-usage: python build_city.py <city>  -> web/public/data/<city>.json, <city>-shapes.geojson, cities.json
+usage: python build_city.py <city>  -> web/public/data/<city>.json (+ its -s/-d/-shapes parts), cities.json
 """
 import json
 import math
@@ -453,18 +453,39 @@ def main(city="pune"):
     details = {}
     for s in societies:  # heavy per-society text, loaded only when a card opens
         details[s["id"]] = {k: s.pop(k) for k in ("reviews", "description", "trend", "ratings", "images")}
-    (WEB / f"{city}.json").write_text(json.dumps(doc, separators=(",", ":")))
-    (WEB / f"{city}-details.json").write_text(json.dumps(details, separators=(",", ":")))
-    for s in societies:
-        s.update(details[s["id"]])
-    write_csv(WEB / f"{city}-societies.csv", WEB / f"{city}-units.csv", societies)
+    # Cloudflare Pages serves files up to 25 MiB, so every big file is split into parts of CHUNK societies:
+    # societies, their card details (s["dp"] says which part) and building shapes. The city file holds
+    # metadata plus the part names; web/src/citydata.js joins them again.
+    CHUNK = 1500
+    for old_part in [*WEB.glob(f"{city}-s*.json"), *WEB.glob(f"{city}-d*.json"), *WEB.glob(f"{city}-shapes*.geojson"), WEB / f"{city}-details.json"]:
+        if old_part.exists():
+            old_part.unlink()
     for f in shapes:
         f["geometry"]["coordinates"] = [[[round(x, 5), round(y, 5)] for x, y in r] for r in f["geometry"]["coordinates"]]
         if "h" in f["properties"]:
             f["properties"]["h"] = round(f["properties"]["h"])
-    (WEB / f"{city}-shapes.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": shapes}, separators=(",", ":")))
+    part_of = {}
+    parts, detail_parts, shape_parts = [], [], []
+    for n, i in enumerate(range(0, len(societies), CHUNK), 1):
+        chunk = societies[i:i + CHUNK]
+        for s in chunk:
+            s["dp"] = n
+            part_of[s["id"]] = n
+        names = (f"{city}-s{n}.json", f"{city}-d{n}.json", f"{city}-shapes{n}.geojson")
+        (WEB / names[0]).write_text(json.dumps(chunk, separators=(",", ":")))
+        (WEB / names[1]).write_text(json.dumps({s["id"]: details[s["id"]] for s in chunk}, separators=(",", ":")))
+        feats = [f for f in shapes if part_of.get(f["properties"].get("sid")) == n]
+        (WEB / names[2]).write_text(json.dumps({"type": "FeatureCollection", "features": feats}, separators=(",", ":")))
+        parts.append(names[0]); detail_parts.append(names[1]); shape_parts.append(names[2])
+    (WEB / f"{city}-events.json").write_text(json.dumps(events, separators=(",", ":")))
+    meta = {k: v for k, v in doc.items() if k not in ("societies", "events")}
+    meta.update(parts=parts, detail_parts=detail_parts, shape_parts=shape_parts, events_file=f"{city}-events.json")
+    (WEB / f"{city}.json").write_text(json.dumps(meta, separators=(",", ":")))
+    for s in societies:
+        s.update(details[s["id"]])
+    write_csv(WEB / f"{city}-societies.csv", WEB / f"{city}-units.csv", societies)
     from collections import Counter
-    built = sorted(p.stem for p in WEB.glob("*.json") if p.stem != "cities")
+    built = sorted(p.stem for p in WEB.glob("*.json") if p.stem != "cities" and "-" not in p.stem)
     all_cfg = json.loads((ROOT.parent / "data" / "cities.json").read_text())
     (WEB / "cities.json").write_text(json.dumps({c: {"name": all_cfg[c]["name"]} for c in built if c in all_cfg}))
     print(doc["counts"], Counter(s["shape"] for s in societies), Counter(s["kind"] for s in societies), "features", len(shapes))

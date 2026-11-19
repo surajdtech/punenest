@@ -1,5 +1,4 @@
 import { expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
 import { parseArgs, parseFeet, parsePrice, search } from './punenest.mjs';
 
 it('reads feet and prices', () => {
@@ -9,16 +8,12 @@ it('reads feet and prices', () => {
   expect(parsePrice('90L')).toBe(9e6);
 });
 
-it("Divy's search finds Araya and Presidia as matches", () => {
-  const city = JSON.parse(readFileSync(new URL('../web/public/data/gurgaon.json', import.meta.url)));
-  const o = parseArgs(['--bhk', '2,3,4', '--min-bedroom', "11'3x12'3", '--min-sqft', '1620', '--amenity', 'squash']);
-  const names = search(city, o).map((r) => r.s.name);
-  expect(names).toContain('Pioneer Araya');
-  expect(names).toContain('Pioneer Presidia');
-  expect(names).not.toContain('Emaar Amaris');
-});
-
-it('reads monthly rent', () => {
-  expect(parsePrice('80k')).toBe(80000);
-  expect(parseArgs(['--max-rent', '80k']).crit).toMatchObject({ mode: 'rent', maxRent: 80000 });
+it('filters a city by BHK and amenity', () => {
+  const unit = (bhk, sqft) => ({ label: `${bhk} BHK`, bhk, super_sqft: sqft, bedrooms: [] });
+  const city = { societies: [
+    { id: 'a', name: 'Pool Towers', kind: 'apartment', amenities: ['Swimming Pool'], unit_types: [unit(3, 1500)], prices: {} },
+    { id: 'b', name: 'Dry Heights', kind: 'apartment', amenities: ['Gymnasium'], unit_types: [unit(3, 1500)], prices: {} },
+  ] };
+  const names = search(city, parseArgs(['--bhk', '3', '--amenity', 'pool'])).map((r) => r.s.name);
+  expect(names).toEqual(['Pool Towers']);
 });

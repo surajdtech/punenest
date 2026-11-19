@@ -3,6 +3,8 @@ import maplibregl from 'maplibre-gl';
 import { addBaseLayers, addSocietyLayers, BASE_MODES, createMap, OVERVIEW, setBaseMode, setHighlights, setSelected, setStates, startPulse } from './map.js';
 import { searchSocieties } from './search.js';
 import { createFeed } from './feed.js';
+import { loadCity, loadDetails as loadDetailsPart, loadShapes } from './citydata.js';
+const getJson = (name) => fetch(`/data/${name}`).then((r) => r.json());
 import { AMENITY_KEYS, DEFAULT_CRITERIA, NEAR, RANK, feetLabel, formatINR, matchSociety, matchUnit, priceFor, roomPasses } from './filters.js';
 
 const $ = (id) => document.getElementById(id);
@@ -36,10 +38,8 @@ const highlights = { glow: true, bounds: true, labels: true, ...store.get('ff-hi
 async function boot() {
   const cities = await fetch('/data/cities.json').then((r) => r.json()).catch(() => ({ pune: { name: 'Pune' } }));
   cityId = cities[params.get('city')] ? params.get('city') : 'pune';
-  const [city, shapes] = await Promise.all([
-    fetch(`/data/${cityId}.json`).then((r) => r.json()),
-    fetch(`/data/${cityId}-shapes.geojson`).then((r) => r.json()),
-  ]);
+  const city = await loadCity(getJson, cityId);
+  const shapes = await loadShapes(getJson, city, cityId);
   data = city;
   OVERVIEW.center = city.city.center;
   OVERVIEW.zoom = city.city.zoom || OVERVIEW.zoom;
@@ -442,13 +442,12 @@ function renderCard(s) {
   $('card').hidden = false;
   $('c-close').onclick = () => { stopTour(); closeCard(); };
   $('c-star').onclick = () => { toggle(myList, s.id); saveList(); renderCard(s); renderResults(); };
-  if (!details) loadDetails().then(() => { if (selected === s.id) renderCard(s); });
+  if (!(details && s.id in details)) loadDetails(s).then(() => { if (selected === s.id) renderCard(s); });
 }
 
-let detailsPromise = null;
-function loadDetails() {
-  detailsPromise ||= fetch(`/data/${cityId}-details.json`).then((r) => r.json()).then((d) => (details = d)).catch(() => (details = {}));
-  return detailsPromise;
+async function loadDetails(s) { // heavy text (reviews, photos, trend) comes from the one chunk holding this society
+  const d = await loadDetailsPart(getJson, data, cityId, s);
+  details = { ...(details || {}), [s.id]: d };
 }
 
 function sparkline(trend) {

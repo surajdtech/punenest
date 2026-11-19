@@ -5,7 +5,7 @@ description: Use to find flats by room size and amenities, to add a new city to 
 
 # PuneNest
 
-PuneNest (https://punenest.pages.dev, repo `surajdtech/punenest`, forked from `kairothq/flat-finder`) puts every housing society in a city on one map. Portal data covers every society; **verified rows** (bedroom sides read from builder brochures or RERA plans) are what make the room filter trustworthy. This skill does three jobs. Pick the one the user asked for.
+PuneNest (https://punenest-9q0.pages.dev, repo `surajdtech/punenest`, forked from `kairothq/flat-finder`) puts every housing society in a city on one map. Portal data covers every society; **verified rows** (bedroom sides read from builder brochures or RERA plans) are what make the room filter trustworthy. This skill does three jobs. Pick the one the user asked for.
 
 Work from a clone of the repo: `gh repo clone kairothq/flat-finder && cd flat-finder`.
 
@@ -83,4 +83,4 @@ Spot-check a few results by eye (open the plan, compare the bedrooms). Pairing b
 
 ## Output to the user
 
-Say what changed and whether it worked: societies verified (with pass or fail against the user's criteria), what could not be read and why, and links (`https://punenest.pages.dev/?city=<city>&open=<id>`).
+Say what changed and whether it worked: societies verified (with pass or fail against the user's criteria), what could not be read and why, and links (`https://punenest-9q0.pages.dev/?city=<city>&open=<id>`).

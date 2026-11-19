@@ -1,10 +1,10 @@
 {
   "name": "punenest",
   "version": "0.1.0",
-  "description": "Find Pune housing societies by the smallest bedroom you can live with. CLI for punenest.pages.dev",
+  "description": "Find Pune housing societies by the smallest bedroom you can live with. CLI for punenest-9q0.pages.dev",
   "type": "module",
   "bin": { "punenest": "cli/punenest.mjs" },
-  "files": ["cli", "web/src/filters.js"],
+  "files": ["cli", "web/src/filters.js", "web/src/citydata.js"],
   "license": "MIT",
   "repository": "github:surajdtech/punenest"
 }

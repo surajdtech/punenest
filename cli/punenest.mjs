@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-// flatfinder: search the PuneNest data from a terminal. Same filter logic as the website.
+// punenest: search the PuneNest data from a terminal. Same filter logic as the website.
 import { readFile, realpath } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { loadCity } from '../web/src/citydata.js';
 import { DEFAULT_CRITERIA, feetLabel, formatINR, matchSociety, priceFor } from '../web/src/filters.js';
 
-const SITE = 'https://punenest.pages.dev';
+const SITE = 'https://punenest-9q0.pages.dev';
 
 const HELP = `flatfinder: find housing societies that fit
 
@@ -83,7 +84,7 @@ const money = (p, mode) => (p ? `${p.estimated ? '~' : ''}${formatINR(p.value)}$
 async function main() {
   const o = parseArgs(process.argv.slice(2));
   if (o.help) return console.log(HELP);
-  const city = o.data ? JSON.parse(await readFile(o.data, 'utf8')) : await (await fetch(`${SITE}/data/${o.city}.json`)).json();
+  const city = o.data ? JSON.parse(await readFile(o.data, 'utf8')) : await loadCity(async (name) => (await fetch(`${SITE}/data/${name}`)).json(), o.city, { events: false });
   const rows = search(city, o);
   if (o.json) return console.log(JSON.stringify(rows.slice(0, o.limit).map(({ s, v }) => ({ verdict: v, ...s })), null, 2));
   console.log(`${rows.length} societies in ${city.city.name}${o.likely ? ' (including likely)' : ''}\n`);
