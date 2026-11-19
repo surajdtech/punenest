@@ -1,0 +1,10 @@
+{
+  "name": "gharkhoj",
+  "version": "0.1.0",
+  "description": "Find Pune housing societies by the smallest bedroom you can live with. CLI for gharkhoj.pages.dev",
+  "type": "module",
+  "bin": { "gharkhoj": "cli/gharkhoj.mjs" },
+  "files": ["cli", "web/src/filters.js"],
+  "license": "MIT",
+  "repository": "github:surajdtech/gharkhoj"
+}

@@ -1,0 +1,4 @@
+{
+  "pune": { "name": "Pune", "magicbricks": "pune", "bbox": [18.40, 73.65, 18.76, 74.08], "center": [73.856, 18.53], "zoom": 11.6, "rera": "MahaRERA" },
+  "gurgaon": { "name": "Gurugram", "magicbricks": "gurgaon", "bbox": [28.33, 76.88, 28.55, 77.16], "center": [77.065, 28.425], "zoom": 12.4, "rera": "HRERA Gurugram" }
+}
