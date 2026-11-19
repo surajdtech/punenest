@@ -6,3 +6,4 @@ pipeline/out/*/osm_buildings.geojson
 pipeline/*.log
 __pycache__/
 pipeline/out/*/mb_projects.json
+pipeline/finish.log
